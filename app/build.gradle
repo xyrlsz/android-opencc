@@ -34,4 +34,5 @@ dependencies {
     implementation project(':lib-opencc-android')
     implementation 'androidx.appcompat:appcompat:1.7.1'
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:2.1.5'
+    implementation 'com.github.houbb:opencc4j:1.14.0'
 }

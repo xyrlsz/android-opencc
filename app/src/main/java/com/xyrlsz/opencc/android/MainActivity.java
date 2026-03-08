@@ -6,26 +6,30 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+
+import com.github.houbb.opencc4j.util.ZhConverterUtil;
 import com.xyrlsz.opencc.android.lib.ChineseConverter;
 import com.xyrlsz.opencc.android.lib.ConversionType;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
 public class MainActivity extends AppCompatActivity {
-    private ConversionType currentConversionType = ConversionType.TW2SP;
-
     ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private ConversionType currentConversionType = ConversionType.TW2SP;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        Spinner spinner                    = findViewById(R.id.spinner);
+        ChineseConverter.init(getApplicationContext());
+        Spinner spinner = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-            this, R.array.conversion_type_array, android.R.layout.simple_spinner_item);
+                this, R.array.conversion_type_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
@@ -67,19 +71,59 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {}
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         final EditText textView = findViewById(R.id.text);
 
         findViewById(R.id.btn).setOnClickListener(v -> {
             String originalText = textView.getText().toString();
-            Runnable runnable   = () -> {
+            Runnable runnable = () -> {
                 final String converted = ChineseConverter.convert(
-                    originalText, currentConversionType, getApplicationContext());
+                        originalText, currentConversionType);
                 textView.post(() -> textView.setText(converted));
             };
             executorService.execute(runnable);
         });
+        findViewById(R.id.btn_test).setOnClickListener(v -> {
+            String text = "我愛你";
+
+            // opencc4j
+            new Thread(() -> {
+                Long start = System.currentTimeMillis();
+                for (int i = 0; i < 10000; i++) {
+                    ZhConverterUtil.toSimple(randomString(text));
+                }
+                Long end = System.currentTimeMillis();
+
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "opencc4j耗时：" + (end - start), Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+            // opencc-android
+            new Thread(() -> {
+                Long start = System.currentTimeMillis();
+                for (int i = 0; i < 10000; i++) {
+                    ChineseConverter.convert(randomString(text), ConversionType.T2S);
+                }
+                Long end = System.currentTimeMillis();
+
+                runOnUiThread(() -> {
+                    Toast.makeText(MainActivity.this, "opencc-android耗时：" + (end - start), Toast.LENGTH_SHORT).show();
+                });
+            }).start();
+        });
+    }
+
+    private String randomString(String input) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            result.append(input.charAt(i));
+            if (Math.random() < 0.5) {
+                result.append(input.charAt(i));
+            }
+        }
+        return result.toString();
     }
 }
