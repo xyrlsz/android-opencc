@@ -5,8 +5,8 @@ import android.content.Context;
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import com.zqc.opencc.android.lib.ChineseConverter;
-import com.zqc.opencc.android.lib.ConversionType;
+import com.xyrlsz.opencc.android.lib.ChineseConverter;
+import com.xyrlsz.opencc.android.lib.ConversionType;
 
 import org.junit.After;
 import org.junit.Assert;

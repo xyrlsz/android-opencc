@@ -1,21 +1,19 @@
-package com.zqc.opencc.android;
+package com.xyrlsz.opencc.android;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-
-import com.zqc.opencc.android.lib.ChineseConverter;
-import com.zqc.opencc.android.lib.ConversionType;
-
+import androidx.appcompat.app.AppCompatActivity;
+import com.xyrlsz.opencc.android.lib.ChineseConverter;
+import com.xyrlsz.opencc.android.lib.ConversionType;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class MainActivity extends AppCompatActivity {
 
+public class MainActivity extends AppCompatActivity {
     private ConversionType currentConversionType = ConversionType.TW2SP;
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
@@ -25,9 +23,9 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Spinner spinner = findViewById(R.id.spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.conversion_type_array, android.R.layout.simple_spinner_item);
+        Spinner spinner                    = findViewById(R.id.spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
+            this, R.array.conversion_type_array, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
 
@@ -69,18 +67,16 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
 
         final EditText textView = findViewById(R.id.text);
 
         findViewById(R.id.btn).setOnClickListener(v -> {
             String originalText = textView.getText().toString();
-            Runnable runnable = () -> {
-                final String converted = ChineseConverter.convert(originalText,
-                        currentConversionType, getApplicationContext());
+            Runnable runnable   = () -> {
+                final String converted = ChineseConverter.convert(
+                    originalText, currentConversionType, getApplicationContext());
                 textView.post(() -> textView.setText(converted));
             };
             executorService.execute(runnable);

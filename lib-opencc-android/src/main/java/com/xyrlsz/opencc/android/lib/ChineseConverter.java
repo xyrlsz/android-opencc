@@ -1,4 +1,4 @@
-package com.zqc.opencc.android.lib;
+package com.xyrlsz.opencc.android.lib;
 
 import android.content.Context;
 import android.content.res.AssetManager;

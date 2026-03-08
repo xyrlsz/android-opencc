@@ -5,6 +5,7 @@ LOCAL_CFLAGS    := -DOPENCC_ENABLE_DARTS
 
 LOCAL_MODULE    := OpenCC
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/darts-clone/
+LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/darts-clone-0.32/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/include/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/lib/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/rapidjson-1.1.0/

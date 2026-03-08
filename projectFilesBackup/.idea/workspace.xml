@@ -838,7 +838,7 @@
                 <option name="name" value="assembleRelease" />
               </ExternalTaskPojo>
               <ExternalTaskPojo>
-                <option name="description" value="Prepare com.zqc.opencc.android.lib:lib-opencc-android:0.8.0" />
+                <option name="description" value="Prepare com.xyrlsz.opencc.android.lib:lib-opencc-android:0.8.0" />
                 <option name="linkedExternalProjectPath" value="$PROJECT_DIR$" />
                 <option name="name" value="prepareComZqcOpenccAndroidLibLibOpenccAndroid080Library" />
               </ExternalTaskPojo>
@@ -2117,7 +2117,7 @@
                 <option name="name" value="packageDebugAndroidTest" />
               </ExternalTaskPojo>
               <ExternalTaskPojo>
-                <option name="description" value="Prepare com.zqc.opencc.android.lib:lib-opencc-android:0.8.0" />
+                <option name="description" value="Prepare com.xyrlsz.opencc.android.lib:lib-opencc-android:0.8.0" />
                 <option name="linkedExternalProjectPath" value="$PROJECT_DIR$/app" />
                 <option name="name" value="prepareComZqcOpenccAndroidLibLibOpenccAndroid080Library" />
               </ExternalTaskPojo>

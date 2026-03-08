@@ -1,4 +1,4 @@
-package com.zqc.opencc.android.lib;
+package com.xyrlsz.opencc.android.lib;
 
 /**
  * Created by zhangqichuan on 2/3/16.

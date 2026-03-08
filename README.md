@@ -74,7 +74,7 @@ You need the Android NDK for compilation, please download the [NDK](http://devel
 
 [Download here](https://www.dropbox.com/s/0qzcmchqf5hqyit/android-opencc-0.6.0.apk?dl=1)
 
-Feel free to feedback if there are any issues, and hope this library can be useful for you.
+Feel free to feed back if there are any issues, and hope this library can be useful for you.
 
 # References
 - https://github.com/BYVoid/OpenCC
