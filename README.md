@@ -6,8 +6,7 @@ An Android port to [OPENCC](https://github.com/BYVoid/OpenCC), a library to conv
 This project uses git submodules to download the source code from OpenCC, please use --recursive flag when cloning this project
 
 ```
- git clone git@github.com:qichuan/android-opencc.git --recursive
-
+git submodule update --init --recursive  
 ```
 
 ## Example
@@ -37,7 +36,7 @@ allprojects {
 // Add the dependency
 dependencies {
     ...
-	implementation 'com.github.qichuan:android-opencc:1.2.0'
+	implementation 'com.github.xyrlsz:android-opencc:1.3.0'
 }
 ```
 
