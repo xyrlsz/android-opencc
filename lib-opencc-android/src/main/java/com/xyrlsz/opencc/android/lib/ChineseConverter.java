@@ -23,6 +23,11 @@ public class ChineseConverter {
         System.loadLibrary("ChineseConverter");
     }
 
+    /**
+     * initialize the library
+     *
+     * @param context android context
+     */
     public static void init(Context context) {
         if (!initialized) {
             synchronized (ChineseConverter.class) {
@@ -46,6 +51,11 @@ public class ChineseConverter {
         return path;
     }
 
+    /***
+     * @param text           the text to be converted to
+     * @param conversionType the conversion type
+     * @return the converted text
+     */
     public static String convert(String text, ConversionType conversionType) {
         if (!initialized) {
             synchronized (ChineseConverter.class) {
@@ -80,7 +90,7 @@ public class ChineseConverter {
 
     /***
      * Clear the dictionary data folder, only call this method when update the dictionary data.
-     * @param context
+     * @param context android context
      */
     public static void clearDictDataFolder(Context context) {
         File dataFolder = new File(context.getFilesDir() + "/openccdata");
@@ -161,7 +171,7 @@ public class ChineseConverter {
     }
 
     private static void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[8192];
+        byte[] buffer = new byte[1024];
         int read;
         while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);

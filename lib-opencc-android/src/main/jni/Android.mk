@@ -10,6 +10,8 @@ LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/include/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/lib/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/rapidjson-1.1.0/
 
+LOCAL_C_INCLUDES += src/main/jni/xxHash/
+
 LOCAL_SRC_FILES := \
 OpenCC/src/BinaryDict.cpp \
 OpenCC/src/Config.cpp \
@@ -38,7 +40,8 @@ OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/io/mapper.cc \
 OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/trie/louds-trie.cc \
 OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/trie/tail.cc \
 OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/vector/bit-vector.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/keyset.cc
+OpenCC/deps/marisa-0.2.6/lib/marisa/keyset.cc \
+xxHash/xxhash.c
 
 include $(BUILD_STATIC_LIBRARY)
 
@@ -47,6 +50,7 @@ LOCAL_PRELINK_MODULE := false
 
 LOCAL_MODULE 	:= ChineseConverter
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/src/
+LOCAL_C_INCLUDES += src/main/jni/xxHash/
 LOCAL_STATIC_LIBRARIES := OpenCC
 LOCAL_LDLIBS  += -llog -landroid
 

@@ -1,3 +1,7 @@
 [submodule "lib-opencc-android/src/main/jni/OpenCC"]
 	path = lib-opencc-android/src/main/jni/OpenCC
 	url = https://github.com/BYVoid/OpenCC.git
+
+[submodule "lib-opencc-android/src/main/jni/xxHash"]
+	path = lib-opencc-android/src/main/jni/xxHash
+	url = https://github.com/Cyan4973/xxHash.git
