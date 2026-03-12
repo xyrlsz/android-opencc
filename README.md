@@ -36,7 +36,7 @@ allprojects {
 // Add the dependency
 dependencies {
     ...
-	implementation 'com.github.xyrlsz:android-opencc:1.3.3'
+	implementation 'com.github.xyrlsz:android-opencc:1.3.1'
 }
 ```
 

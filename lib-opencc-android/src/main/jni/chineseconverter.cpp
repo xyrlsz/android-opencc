@@ -37,8 +37,8 @@ struct ConverterCache {
 
     std::string convertWithCache(const std::string &fullPath, const std::string &text) {
 
-        uint64_t key = XXH3_64bits(text.data(), text.size());
-        key ^= XXH3_64bits(fullPath.data(), fullPath.size());
+        std::string keyStr = fullPath + ":" + text;
+        uint64_t key = XXH3_64bits(keyStr.data(), keyStr.size());
 
         std::string cachedResult = resultCache.get(key);
         if (!cachedResult.empty()) {
