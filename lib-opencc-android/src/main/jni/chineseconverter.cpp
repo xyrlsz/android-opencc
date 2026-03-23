@@ -12,7 +12,7 @@ struct ConverterCache {
     std::unordered_map<std::string, opencc::ConverterPtr> converterMap;
     mutable std::shared_mutex converterMtx;
 
-    LRUCache<uint64_t, std::string> resultCache{2048};
+    LRUCache<uint64_t, CacheEntry> resultCache{2048};
 
     opencc::ConverterPtr getOrCreate(const std::string &fullPath) {
         {
@@ -40,16 +40,18 @@ struct ConverterCache {
         std::string keyStr = fullPath + ":" + text;
         uint64_t key = XXH3_64bits(keyStr.data(), keyStr.size());
 
-        std::string cachedResult = resultCache.get(key);
-        if (!cachedResult.empty()) {
-            return cachedResult;
+        auto cached = resultCache.get(key);
+        if (!cached.value.empty()) {
+            if (cached.keyStr == keyStr) {
+                return cached.value;
+            }
         }
 
         opencc::ConverterPtr converter = getOrCreate(fullPath);
         std::string result = converter->Convert(text);
 
         if (!result.empty() && result.length() < 4096) {
-            resultCache.put(key, result);
+            resultCache.put(key, {keyStr, result});
         }
         return result;
     }

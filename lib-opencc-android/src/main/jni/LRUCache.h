@@ -12,6 +12,11 @@
 #include <list>
 #include "xxhash.h"
 
+struct CacheEntry {
+    std::string keyStr;   // 原始 key
+    std::string value;    // 转换结果
+};
+
 template<typename K, typename V>
 class LRUCache {
 public:
