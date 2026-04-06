@@ -1,28 +1,28 @@
-# Introduction
+# 简介
 
-An Android port to [OPENCC](https://github.com/BYVoid/OpenCC), a library to convert Simplified Chinese to Traditional Chinese and vice versa. In additional, it also adopts the regional vocabulary and terminology interchangeably during conversion among Mainland China Simplified Chinese, Taiwan Traditional Chinese and Hong Kong Traditional Chinese.
+[OPENCC](https://github.com/BYVoid/OpenCC) 的 Android 移植版本，这是一个用于转换简体中文和繁体中文的库。此外，在中国大陆简体中文、台湾繁体中文和香港繁体中文之间转换时，它还采用了地区词汇和术语进行互换。
 
-## Note
-This project uses git submodules to download the source code from OpenCC, please use --recursive flag when cloning this project
+## 注意
+此项目使用 git 子模块从 OpenCC 下载源代码，请在克隆此项目时使用 --recursive 标志
 
 ```
 git submodule update --init --recursive  
 ```
 
-## Example
+## 示例
 ```
 滑鼠裡面的矽二極體壞了，導致游標解析度降低。
 ``` 
-in Traditional Taiwan Chinese
-will be converted to 
+在台湾繁体中文中
+将转换为 
 ```
 鼠标里面的硅二极管坏了，导致光标分辨率降低。
 ```
-in Simplified Chinese and using Mainland China terminology
+在简体中文中并使用中国大陆术语
 
-# Installation
+# 安装
 
-Add it in your root build.gradle at the end of repositories:
+在您的根目录 build.gradle 中添加以下内容：
 ```
 allprojects {
 	repositories {
@@ -33,48 +33,48 @@ allprojects {
 ```
 
 ```
-// Add the dependency
+// 添加依赖
 dependencies {
     ...
-	implementation 'com.github.xyrlsz:android-opencc:1.3.1'
+	implementation 'com.github.xyrlsz:android-opencc:1.3.7'
 }
 ```
 
-# Usage
-To use Chinese converter is easy, just call `ChineseConverter.convert(originalText, conversionType, context));`
+# 使用方法
+使用中文转换器很容易，只需调用 `ChineseConverter.convert();`
 
-## Supported conversation types
-- HK2S, Traditional Chinese (Hong Kong Standard) to Simplified Chinese 香港繁體（香港小學學習字詞表標準）到簡體
-- HK2T, Traditional Chinese (Hong Kong variant) to Traditional Chinese 香港繁體（香港小學學習字詞表標準）到繁體
-- JP2T, New Japanese Kanji (Shinjitai) to Traditional Chinese Characters (Kyūjitai) 日本漢字到繁體
-- S2HK, Simplified Chinese to Traditional Chinese (Hong Kong Standard) 簡體到香港繁體（香港小學學習字詞表標準）
-- S2T, Simplified Chinese to Traditional Chinese 簡體到繁體
-- S2TW, Simplified Chinese to Traditional Chinese (Taiwan Standard) 簡體到臺灣正體
-- S2TWP, Simplified Chinese to Traditional Chinese (Taiwan Standard) with Taiwanese idiom 簡體到繁體（臺灣正體標準）並轉換爲臺灣常用詞彙
-- T2HK, Traditional Chinese to Traditional Chinese (Hong Kong Standard) 繁體到香港繁體（香港小學學習字詞表標準）
-- T2S, Traditional Chinese to Simplified Chinese 繁體到簡體
-- T2TW, Traditional Chinese to Traditional Chinese (Taiwan Standard) 繁體臺灣正體
-- TW2S, Traditional Chinese (Taiwan Standard) to Simplified Chinese 臺灣正體到簡體
-- T2JP, Traditional Chinese Characters (Kyūjitai) to New Japanese Kanji (Shinjitai) 繁體到日本漢字
-- TW2T, Traditional Chinese (Taiwan standard) to Traditional Chinese 臺灣正體到繁體
-- TW2SP, Traditional Chinese (Taiwan Standard) to Simplified Chinese with Mainland Chinese idiom 繁體（臺灣正體標準）到簡體並轉換爲中國大陸常用詞彙
+建议使用前调用`ChineseConverter.init(context)`进行初始化，调用 `ChineseConverter.convert()`就可以不传入`context`参数了。
 
-# Explanation
+## 支持的转换类型
+- HK2S: 繁体中文（香港标准）到简体中文
+- HK2T: 繁体中文（香港变体）到繁体中文
+- JP2T: 新日文汉字（新字体）到繁体中文字符（旧字体）
+- S2HK: 简体中文到繁体中文（香港标准）
+- S2T: 简体中文到繁体中文
+- S2TW: 简体中文到繁体中文（台湾标准）
+- S2TWP: 简体中文到繁体中文（台湾标准）并转换为台湾常用词汇
+- T2HK: 繁体中文到繁体中文（香港标准）
+- T2S: 繁体中文到简体中文
+- T2TW: 繁体中文到繁体中文（台湾标准）
+- TW2S: 繁体中文（台湾标准）到简体中文
+- T2JP: 繁体中文字符（旧字体）到新日文汉字（新字体）
+- TW2T: 繁体中文（台湾标准）到繁体中文
+- TW2SP: 繁体中文（台湾标准）到简体中文并转换为中国大陆常用词汇
 
-android-opencc leverages on the original OpenCC project and invoke the native code via JNI, the text phrase dictionary files are shipped in the assets folder. Android NDK does not provide means to create and read file streams from directly from assets folder, therefore the dictionary files are then copied to the application data folder in the first call of `ChineseConverter.convert()`
+# 说明
 
-If you need to update the dictionary files in the assets folder, please remember to call `ChineseConverter.clearDictDataFolder()` once to clear the old dictionary files, so the new dictionary files will be effective in the next `ChineseConverter.convert()` call.
+android-opencc 利用原始的 OpenCC 项目并通过 JNI 调用原生代码，文本短语字典文件打包在 assets 文件夹中。Android NDK 不提供直接从 assets 文件夹创建和读取文件流的方法，因此字典文件在第一次调用 `ChineseConverter.convert()` 时会被复制到应用程序数据文件夹中。
 
-# Compilation
+相对于[原版](https://github.com/qichuan/android-opencc)，进行了一定的性能优化，并支持16KB页面大小。需要API Level 21以上。
 
-You need the Android NDK for compilation, please download the [NDK](http://developer.android.com/ndk/downloads/index.html) and configure the path to NDK in `local.properties` file.
-<!-- 
-# Example apk
+> [!TIP]
+> 如果您需要更新 assets 文件夹中的字典文件，请记住调用 `ChineseConverter.clearDictDataFolder()` 一次以清除旧的字典文件，以便新的字典文件在下次 `ChineseConverter.convert()` 调用时生效。
 
-[Download here](https://www.dropbox.com/s/0qzcmchqf5hqyit/android-opencc-0.6.0.apk?dl=1)
+# 编译
 
-Feel free to feed back if there are any issues, and hope this library can be useful for you. -->
+您需要 Android NDK 进行编译，请下载 [NDK](http://developer.android.com/ndk/downloads/index.html) 并在 `local.properties` 文件中配置 NDK 路径。
 
-# References
+
+# 参考资料
 - https://github.com/BYVoid/OpenCC
 - https://github.com/gelosie/OpenCC/tree/master/iOS
