@@ -11,16 +11,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-/**
- * Created by zhangqichuan on 29/2/16.
- */
 public class ChineseConverter {
+    private static final Map<ConversionType, String> dataFolderPathMap = new HashMap<>();
     private static volatile boolean initialized = false;
-    private static Map<ConversionType, String> dataFolderPathMap = new HashMap<>();
 
     static {
         System.loadLibrary("ChineseConverter");
+    }
+
+    private static boolean isEmptyString(String str) {
+        return str == null || str.isEmpty();
     }
 
     /**
@@ -57,6 +59,9 @@ public class ChineseConverter {
      * @return the converted text
      */
     public static String convert(String text, ConversionType conversionType) {
+        if (isEmptyString(text)) {
+            return "";
+        }
         if (!initialized) {
             synchronized (ChineseConverter.class) {
                 if (!initialized) {
@@ -65,9 +70,8 @@ public class ChineseConverter {
             }
         }
         String specificDataPath = getDataFolderPathForType(conversionType);
-        return convert(text, conversionType.getValue(), specificDataPath);
+        return nativeConvert(text, conversionType.getValue(), specificDataPath);
     }
-
 
     /***
      * @param text           the text to be converted to
@@ -76,6 +80,9 @@ public class ChineseConverter {
      * @return the converted text
      */
     public static String convert(String text, ConversionType conversionType, Context context) {
+        if (isEmptyString(text)) {
+            return "";
+        }
         if (!initialized) {
             synchronized (ChineseConverter.class) {
                 if (!initialized) {
@@ -85,7 +92,7 @@ public class ChineseConverter {
             }
         }
         String specificDataPath = getDataFolderPathForType(conversionType);
-        return convert(text, conversionType.getValue(), specificDataPath);
+        return nativeConvert(text, conversionType.getValue(), specificDataPath);
     }
 
     /***
@@ -102,13 +109,13 @@ public class ChineseConverter {
 
     private static void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
-            for (File child : fileOrDirectory.listFiles())
+            for (File child : Objects.requireNonNull(fileOrDirectory.listFiles()))
                 deleteRecursive(child);
 
         fileOrDirectory.delete();
     }
 
-    private static native String convert(String text, String configFile, String absoluteDataFolderPath);
+    private static native String nativeConvert(String text, String configFile, String absoluteDataFolderPath);
 
     private static void initialize(Context context) {
         File baseDir = context.getFilesDir();

@@ -64,7 +64,7 @@ static ConverterCache &GetGlobalCache() {
 
 extern "C"
 jstring
-Java_com_xyrlsz_opencc_android_lib_ChineseConverter_convert(
+Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
         JNIEnv *env, jclass type, jstring text_, jstring configFile_,
         jstring absoluteDataFolderPath_) {
 
