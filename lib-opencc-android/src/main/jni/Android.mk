@@ -4,10 +4,10 @@ include $(CLEAR_VARS)
 LOCAL_CFLAGS    := -DOPENCC_ENABLE_DARTS
 
 LOCAL_MODULE    := OpenCC
-LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/darts-clone/
+
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/darts-clone-0.32/
-LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/include/
-LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.2.6/lib/
+LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.3.1/include/
+LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/marisa-0.3.1/lib/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/rapidjson-1.1.0/
 
 LOCAL_C_INCLUDES += src/main/jni/xxHash/
@@ -32,15 +32,16 @@ OpenCC/src/SimpleConverter.cpp \
 OpenCC/src/TextDict.cpp \
 OpenCC/src/UTF8StringSlice.cpp \
 OpenCC/src/UTF8Util.cpp \
-OpenCC/deps/marisa-0.2.6/lib/marisa/trie.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/agent.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/io/reader.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/io/writer.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/io/mapper.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/trie/louds-trie.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/trie/tail.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/grimoire/vector/bit-vector.cc \
-OpenCC/deps/marisa-0.2.6/lib/marisa/keyset.cc \
+OpenCC/src/PluginSegmentation.cpp \
+OpenCC/deps/marisa-0.3.1/lib/marisa/trie.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/agent.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/io/reader.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/io/writer.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/io/mapper.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/trie/louds-trie.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/trie/tail.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/vector/bit-vector.cc \
+OpenCC/deps/marisa-0.3.1/lib/marisa/keyset.cc \
 xxHash/xxhash.c
 
 include $(BUILD_STATIC_LIBRARY)
