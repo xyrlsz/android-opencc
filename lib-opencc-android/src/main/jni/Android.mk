@@ -33,6 +33,7 @@ OpenCC/src/TextDict.cpp \
 OpenCC/src/UTF8StringSlice.cpp \
 OpenCC/src/UTF8Util.cpp \
 OpenCC/src/PluginSegmentation.cpp \
+OpenCC/src/PrefixMatch.cpp \
 OpenCC/deps/marisa-0.3.1/lib/marisa/trie.cc \
 OpenCC/deps/marisa-0.3.1/lib/marisa/agent.cc \
 OpenCC/deps/marisa-0.3.1/lib/marisa/grimoire/io/reader.cc \
