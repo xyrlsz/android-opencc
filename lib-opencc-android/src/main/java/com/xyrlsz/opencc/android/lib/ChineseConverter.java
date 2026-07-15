@@ -9,12 +9,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ChineseConverter {
-    private static final Map<ConversionType, String> dataFolderPathMap = new HashMap<>();
+    // 每种转换类型可设置独立的数据目录（库的扩展点），ConcurrentHashMap 保证线程安全
+    private static final ConcurrentHashMap<ConversionType, String> dataFolderPathMap = new ConcurrentHashMap<>();
     private static volatile boolean initialized = false;
 
     static {
@@ -41,11 +41,25 @@ public class ChineseConverter {
         }
     }
 
+    /***
+     * 为指定转换类型设置独立的数据目录路径。
+     * 不调用则默认使用 init() 时设置的通用路径。
+     *
+     * @param type 转换类型
+     * @param dataFolderPath 字典数据所在目录的绝对路径
+     */
+    public static void setDataFolderPath(ConversionType type, String dataFolderPath) {
+        if (type == null || dataFolderPath == null) {
+            throw new IllegalArgumentException("type and dataFolderPath must not be null");
+        }
+        dataFolderPathMap.put(type, dataFolderPath);
+    }
+
     private static String getDataFolderPathForType(ConversionType conversionType) {
         String path = dataFolderPathMap.get(conversionType);
         if (path == null) {
-            // 如果特定类型的数据路径不存在，返回默认路径
-            path = dataFolderPathMap.get(ConversionType.S2T); // 假设S2T为默认类型
+            // 特定类型未单独设置，回退到 S2T 默认路径
+            path = dataFolderPathMap.get(ConversionType.S2T);
             if (path == null) {
                 throw new RuntimeException("No data folder path initialized for any conversion type");
             }
@@ -54,30 +68,32 @@ public class ChineseConverter {
     }
 
     /***
-     * @param text           the text to be converted to
-     * @param conversionType the conversion type
-     * @return the converted text
+     * 转换文本。需要先调用 {@link #init(Context)} 初始化。
+     *
+     * @param text           待转换文本
+     * @param conversionType 转换类型
+     * @return 转换后的文本，空文本返回 ""
+     * @throws RuntimeException 如果未初始化
      */
     public static String convert(String text, ConversionType conversionType) {
         if (isEmptyString(text)) {
             return "";
         }
+        // 快速失败：给出明确的初始化提示
         if (!initialized) {
-            synchronized (ChineseConverter.class) {
-                if (!initialized) {
-                    throw new RuntimeException("Please call init() first.");
-                }
-            }
+            throw new RuntimeException("Please call ChineseConverter.init(context) first.");
         }
-        String specificDataPath = getDataFolderPathForType(conversionType);
-        return nativeConvert(text, conversionType.getValue(), specificDataPath);
+        return nativeConvert(text, conversionType.getValue(),
+                getDataFolderPathForType(conversionType));
     }
 
     /***
-     * @param text           the text to be converted to
-     * @param conversionType the conversion type
+     * 转换文本。如未初始化则自动用给定 context 初始化。
+     *
+     * @param text           待转换文本
+     * @param conversionType 转换类型
      * @param context        android context
-     * @return the converted text
+     * @return 转换后的文本，空文本返回 ""
      */
     public static String convert(String text, ConversionType conversionType, Context context) {
         if (isEmptyString(text)) {
@@ -91,8 +107,10 @@ public class ChineseConverter {
                 }
             }
         }
-        String specificDataPath = getDataFolderPathForType(conversionType);
-        return nativeConvert(text, conversionType.getValue(), specificDataPath);
+        // 在 synchronized 块外获取路径：initialized 的 volatile 语义保证
+        // ConcurrentHashMap 的写入对后续 volatile 读可见
+        return nativeConvert(text, conversionType.getValue(),
+                getDataFolderPathForType(conversionType));
     }
 
     /***
@@ -100,11 +118,12 @@ public class ChineseConverter {
      * @param context android context
      */
     public static void clearDictDataFolder(Context context) {
-        File dataFolder = new File(context.getFilesDir() + "/openccdata");
-        deleteRecursive(dataFolder);
-
-        // 清空缓存的路径映射
-        dataFolderPathMap.clear();
+        synchronized (ChineseConverter.class) {
+            File dataFolder = new File(context.getFilesDir() + "/openccdata");
+            deleteRecursive(dataFolder);
+            dataFolderPathMap.clear();
+            initialized = false;
+        }
     }
 
     private static void deleteRecursive(File fileOrDirectory) {
@@ -125,9 +144,10 @@ public class ChineseConverter {
             copyFolder("openccdata", context);
         }
 
-        // 为每个转换类型设置数据路径
+        // 为每种转换类型设置默认数据路径（不覆盖已通过 setDataFolderPath 自定义的路径）
+        String defaultPath = dataDir.getAbsolutePath();
         for (ConversionType type : ConversionType.values()) {
-            dataFolderPathMap.put(type, dataDir.getAbsolutePath());
+            dataFolderPathMap.putIfAbsent(type, defaultPath);
         }
     }
 
@@ -178,7 +198,7 @@ public class ChineseConverter {
     }
 
     private static void copyFile(InputStream in, OutputStream out) throws IOException {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[8192];
         int read;
         while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
