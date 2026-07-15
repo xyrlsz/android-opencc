@@ -5,9 +5,11 @@ package com.xyrlsz.opencc.android.lib;
  */
 public enum ConversionType {
     HK2S("hk2s.json"),
+    HK2SP("hk2sp.json"),
     HK2T("hk2t.json"),
     JP2T("jp2t.json"),
     S2HK("s2hk.json"),
+    S2HKP("s2hkp.json"),
     S2T("s2t.json"),
     S2TW("s2tw.json"),
     S2TWP("s2twp.json"),
