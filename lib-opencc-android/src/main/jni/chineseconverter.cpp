@@ -75,7 +75,9 @@ static ConverterCache &GetGlobalCache() {
 // 中文 ~3 字节/字，1024 字节 ≈ 340 字，覆盖大多数短消息
 static constexpr jsize kStackBufSize = 1024;
 
-extern "C"
+// -fvisibility=hidden 需要将 JNI 入口显式标记为 default 可见性
+// 否则 JVM 无法通过 dlsym 找到该函数
+extern "C" __attribute__((visibility("default")))
 jstring
 Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
         JNIEnv *env, jclass type, jstring text_, jstring configFile_,

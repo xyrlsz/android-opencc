@@ -2,6 +2,12 @@ LOCAL_PATH := $(call my-dir)
 include $(CLEAR_VARS)
 
 LOCAL_CFLAGS    := -DOPENCC_ENABLE_DARTS
+LOCAL_CFLAGS    += -Oz -fvisibility=hidden -ffunction-sections -fdata-sections
+LOCAL_CFLAGS    += -fno-rtti -fmerge-all-constants -fno-asynchronous-unwind-tables -fno-stack-protector
+LOCAL_CFLAGS    += -flto=thin
+
+LOCAL_LDFLAGS   := -Wl,--gc-sections -Wl,--icf=all -Wl,-s
+LOCAL_LDFLAGS   += -flto=thin
 
 LOCAL_MODULE    := OpenCC
 
@@ -56,6 +62,11 @@ include $(CLEAR_VARS)
 LOCAL_PRELINK_MODULE := false
 
 LOCAL_MODULE 	:= ChineseConverter
+LOCAL_CFLAGS    += -Oz -fvisibility=hidden -ffunction-sections -fdata-sections
+LOCAL_CFLAGS    += -fno-rtti -fmerge-all-constants -fno-asynchronous-unwind-tables -fno-stack-protector
+LOCAL_CFLAGS    += -flto=thin
+LOCAL_LDFLAGS   += -Wl,--gc-sections -Wl,--icf=all -Wl,-s
+LOCAL_LDFLAGS   += -flto=thin
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/src/
 LOCAL_C_INCLUDES += src/main/jni/OpenCC/deps/rapidjson-1.1.0/
 LOCAL_C_INCLUDES += src/main/jni/xxHash/
