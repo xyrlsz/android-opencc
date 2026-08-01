@@ -87,4 +87,5 @@ android-opencc 利用原始的 OpenCC 项目并通过 JNI 调用原生代码，�
 
 # 参考资料
 - https://github.com/BYVoid/OpenCC
+- https://github.com/Cyan4973/xxHash
 - https://github.com/gelosie/OpenCC/tree/master/iOS
