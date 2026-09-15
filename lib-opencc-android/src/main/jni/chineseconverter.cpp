@@ -77,10 +77,6 @@ static std::mutex &GetConversionMutex() {
     return mutex;
 }
 
-// 栈缓冲区阈值：UTF-8 ≤1024 字节用 GetStringUTFRegion 避免 JNI pinning
-// 中文 ~3 字节/字，1024 字节 ≈ 340 字，覆盖大多数短消息
-static constexpr jsize kStackBufSize = 1024;
-
 extern "C"
 jstring
 Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
@@ -91,10 +87,10 @@ Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
         return nullptr;
     }
 
-    // --- 获取字符串长度 ---
-    // GetStringUTFLength → 修改版 UTF-8 编码的字节数
-    // GetStringLength    → Java char (UTF-16) 的字符数
-    // GetStringUTFRegion 的 len 参数是字符数，不是字节数！
+    if (text_ == nullptr || configFile_ == nullptr || absoluteDataFolderPath_ == nullptr) {
+        return nullptr;
+    }
+
     jsize textUtfLen = env->GetStringUTFLength(text_);
     jsize configUtfLen = env->GetStringUTFLength(configFile_);
     jsize pathUtfLen = env->GetStringUTFLength(absoluteDataFolderPath_);
@@ -106,50 +102,22 @@ Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
         return text_;
     }
 
-    // --- 使用栈缓冲区处理小字符串，避免 JNI pinning ---
-    // UTF-8 字节数 ≤ kStackBufSize(1024) 用 GetStringUTFRegion 拷贝到栈上
-    // 注意：GetStringUTFRegion(env, str, start, charCount, buf) 的 len 参数
-    // 是 Java 字符数（GetStringLength），而非 UTF-8 字节数（GetStringUTFLength）
-    // 对于大字符串，回退到 GetStringUTFChars
     std::string text, configFile, absoluteDataFolderPath;
 
-    if (textUtfLen <= kStackBufSize) {
-        jsize textCharLen = env->GetStringLength(text_);
-        char buf[kStackBufSize];
-        env->GetStringUTFRegion(text_, 0, textCharLen, buf);
-        if (env->ExceptionCheck()) return text_;
-        text.assign(buf, static_cast<size_t>(textUtfLen));
-    } else {
-        const char *raw = env->GetStringUTFChars(text_, nullptr);
-        if (!raw) return text_;
-        text.assign(raw, static_cast<size_t>(textUtfLen));
-        env->ReleaseStringUTFChars(text_, raw);
-    }
+    auto copyJniString = [env](jstring value, jsize length, std::string &target) {
+        const char *raw = env->GetStringUTFChars(value, nullptr);
+        if (raw == nullptr) {
+            return false;
+        }
+        target.assign(raw, static_cast<size_t>(length));
+        env->ReleaseStringUTFChars(value, raw);
+        return true;
+    };
 
-    if (configUtfLen <= kStackBufSize) {
-        jsize configCharLen = env->GetStringLength(configFile_);
-        char buf[kStackBufSize];
-        env->GetStringUTFRegion(configFile_, 0, configCharLen, buf);
-        if (env->ExceptionCheck()) return text_;
-        configFile.assign(buf, static_cast<size_t>(configUtfLen));
-    } else {
-        const char *raw = env->GetStringUTFChars(configFile_, nullptr);
-        if (!raw) return text_;
-        configFile.assign(raw, static_cast<size_t>(configUtfLen));
-        env->ReleaseStringUTFChars(configFile_, raw);
-    }
-
-    if (pathUtfLen <= kStackBufSize) {
-        jsize pathCharLen = env->GetStringLength(absoluteDataFolderPath_);
-        char buf[kStackBufSize];
-        env->GetStringUTFRegion(absoluteDataFolderPath_, 0, pathCharLen, buf);
-        if (env->ExceptionCheck()) return text_;
-        absoluteDataFolderPath.assign(buf, static_cast<size_t>(pathUtfLen));
-    } else {
-        const char *raw = env->GetStringUTFChars(absoluteDataFolderPath_, nullptr);
-        if (!raw) return text_;
-        absoluteDataFolderPath.assign(raw, static_cast<size_t>(pathUtfLen));
-        env->ReleaseStringUTFChars(absoluteDataFolderPath_, raw);
+    if (!copyJniString(text_, textUtfLen, text)
+            || !copyJniString(configFile_, configUtfLen, configFile)
+            || !copyJniString(absoluteDataFolderPath_, pathUtfLen, absoluteDataFolderPath)) {
+        return text_;
     }
 
     // --- 构造 fullPath 并获取/创建 Converter ---
