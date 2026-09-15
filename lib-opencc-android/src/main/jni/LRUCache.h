@@ -55,6 +55,12 @@ public:
         return false;
     }
 
+    void clear() {
+        std::unique_lock<std::shared_mutex> lock(mtx_);
+        map_.clear();
+        list_.clear();
+    }
+
     // 返回当前缓存条目数
     size_t size() const {
         std::shared_lock<std::shared_mutex> lock(mtx_);

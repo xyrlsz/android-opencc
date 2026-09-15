@@ -2,6 +2,7 @@
 #include <string>
 #include <unordered_map>
 #include <shared_mutex>
+#include <mutex>
 #include "xxhash.h"
 #include "Converter.hpp"
 #include "Config.hpp"
@@ -69,6 +70,11 @@ struct ConverterCache {
 static ConverterCache &GetGlobalCache() {
     static ConverterCache instance;
     return instance;
+}
+
+static std::mutex &GetConversionMutex() {
+    static std::mutex mutex;
+    return mutex;
 }
 
 // 栈缓冲区阈值：UTF-8 ≤1024 字节用 GetStringUTFRegion 避免 JNI pinning
@@ -157,10 +163,22 @@ Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeConvert(
     fullPath += configFile;
 
     try {
+        std::lock_guard<std::mutex> lock(GetConversionMutex());
         ConverterEntry entry = GetGlobalCache().getOrCreate(fullPath);
         std::string result = GetGlobalCache().convertWithCache(entry, text);
         return env->NewStringUTF(result.c_str());
     } catch (const std::exception &e) {
         return env->NewStringUTF(text.c_str());
     }
+}
+
+extern "C"
+void
+Java_com_xyrlsz_opencc_android_lib_ChineseConverter_nativeClearCache(
+        JNIEnv *env, jclass type) {
+    std::lock_guard<std::mutex> lock(GetConversionMutex());
+    ConverterCache &cache = GetGlobalCache();
+    std::unique_lock<std::shared_mutex> cacheLock(cache.converterMtx);
+    cache.converterMap.clear();
+    cache.resultCache.clear();
 }

@@ -52,7 +52,9 @@ public class ChineseConverter {
         if (type == null || dataFolderPath == null) {
             throw new IllegalArgumentException("type and dataFolderPath must not be null");
         }
-        dataFolderPathMap.put(type, dataFolderPath);
+        synchronized (ChineseConverter.class) {
+            dataFolderPathMap.put(type, dataFolderPath);
+        }
     }
 
     private static String getDataFolderPathForType(ConversionType conversionType) {
@@ -79,12 +81,14 @@ public class ChineseConverter {
         if (isEmptyString(text)) {
             return "";
         }
-        // 快速失败：给出明确的初始化提示
-        if (!initialized) {
-            throw new RuntimeException("Please call ChineseConverter.init(context) first.");
+        synchronized (ChineseConverter.class) {
+            // 快速失败：给出明确的初始化提示
+            if (!initialized) {
+                throw new RuntimeException("Please call ChineseConverter.init(context) first.");
+            }
+            return nativeConvert(sanitizeUtf16(text), conversionType.getValue(),
+                    getDataFolderPathForType(conversionType));
         }
-        return nativeConvert(text, conversionType.getValue(),
-                getDataFolderPathForType(conversionType));
     }
 
     /***
@@ -99,18 +103,14 @@ public class ChineseConverter {
         if (isEmptyString(text)) {
             return "";
         }
-        if (!initialized) {
-            synchronized (ChineseConverter.class) {
-                if (!initialized) {
-                    initialize(context);
-                    initialized = true;
-                }
+        synchronized (ChineseConverter.class) {
+            if (!initialized) {
+                initialize(context);
+                initialized = true;
             }
+            return nativeConvert(sanitizeUtf16(text), conversionType.getValue(),
+                    getDataFolderPathForType(conversionType));
         }
-        // 在 synchronized 块外获取路径：initialized 的 volatile 语义保证
-        // ConcurrentHashMap 的写入对后续 volatile 读可见
-        return nativeConvert(text, conversionType.getValue(),
-                getDataFolderPathForType(conversionType));
     }
 
     /***
@@ -119,6 +119,7 @@ public class ChineseConverter {
      */
     public static void clearDictDataFolder(Context context) {
         synchronized (ChineseConverter.class) {
+            nativeClearCache();
             File dataFolder = new File(context.getFilesDir() + "/openccdata");
             deleteRecursive(dataFolder);
             dataFolderPathMap.clear();
@@ -204,4 +205,37 @@ public class ChineseConverter {
             out.write(buffer, 0, read);
         }
     }
+
+    private static String sanitizeUtf16(String text) {
+        StringBuilder sanitized = null;
+        for (int i = 0; i < text.length(); i++) {
+            char current = text.charAt(i);
+            if (Character.isHighSurrogate(current)) {
+                if (i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
+                    if (sanitized != null) {
+                        sanitized.append(current).append(text.charAt(++i));
+                    } else {
+                        i++;
+                    }
+                } else {
+                    if (sanitized == null) {
+                        sanitized = new StringBuilder(text.length());
+                        sanitized.append(text, 0, i);
+                    }
+                    sanitized.append('\uFFFD');
+                }
+            } else if (Character.isLowSurrogate(current)) {
+                if (sanitized == null) {
+                    sanitized = new StringBuilder(text.length());
+                    sanitized.append(text, 0, i);
+                }
+                sanitized.append('\uFFFD');
+            } else if (sanitized != null) {
+                sanitized.append(current);
+            }
+        }
+        return sanitized == null ? text : sanitized.toString();
+    }
+
+    private static native void nativeClearCache();
 }
